@@ -134,6 +134,20 @@ print("Saved fig2_psd.png")
 # ══════════════════════════════════════════════════════════════
 # Figure 3 — Topographic Maps: Band × Group
 # ══════════════════════════════════════════════════════════════
+
+# Compute global vmin/vmax for each band across all groups
+band_vlims = {}
+for band in BAND_NAMES:
+    all_vals = []
+    for subjects in group_data.values():
+        avg = np.zeros(len(ref_raw.ch_names))
+        for s in subjects:
+            avg += s['powers'][band]
+        avg /= len(subjects)
+        all_vals.append(10 * np.log10(avg + 1e-30))
+    all_vals = np.concatenate(all_vals)
+    band_vlims[band] = (np.percentile(all_vals, 5), np.percentile(all_vals, 95))
+
 n_bands = len(BAND_NAMES)
 n_groups = len(group_data)
 fig3, axes3 = plt.subplots(n_groups, n_bands, figsize=(4 * n_bands, 3.8 * n_groups + 0.5))
@@ -150,11 +164,10 @@ for row, (group, subjects) in enumerate(group_data.items()):
     for col, band in enumerate(BAND_NAMES):
         ax = axes3[row, col]
         power_db = 10 * np.log10(avg_powers[band] + 1e-30)
-        vmin, vmax = np.percentile(power_db, 5), np.percentile(power_db, 95)
         im, _ = mne.viz.plot_topomap(
             power_db, ref_raw.info,
             axes=ax, show=False,
-            cmap='RdYlBu_r', vlim=(vmin, vmax),
+            cmap='RdYlBu_r', vlim=band_vlims[band],  # shared scale across groups
         )
         if row == 0:
             ax.set_title(band, fontsize=12, fontweight='bold', pad=10)
