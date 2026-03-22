@@ -84,7 +84,7 @@ The ENIGMA toolkit CSVs are loaded directly from `enigma/enigmatoolbox/datasets/
 
 ---
 
-## Neuroscience background
+## Scientific background
 
 See [`FEATURES.md`](FEATURES.md) for a full feature-by-feature breakdown with citations covering:
 - Wilson–Cowan model stability and operating point theory
